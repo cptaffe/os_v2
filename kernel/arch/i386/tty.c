@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/io.h>
 
 #include <kernel/vga.h>
 #include <kernel/tty.h>
@@ -66,6 +67,9 @@ void tty_putchar(tty *t, char c) {
 				t->row = VGA_HEIGHT - 1; // stick at bottom row
 			}
 		}
+
+		// position cursor at current col & row
+		tty_cursor_pos(t->row, t->col);
 	}
 }
 
@@ -93,4 +97,16 @@ size_t tty_getmaxx(tty *t) {
 
 size_t tty_getmaxy(tty *t) {
 	return VGA_HEIGHT;
+}
+
+// cursor location
+void tty_cursor_pos(int row, int col) {
+	unsigned short position=(row*80) + col;
+
+	// cursor LOW port to vga INDEX register
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (unsigned char)(position&0xFF));
+	// cursor HIGH port to vga INDEX register
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (unsigned char )((position>>8)&0xFF));
 }

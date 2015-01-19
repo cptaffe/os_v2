@@ -34,4 +34,6 @@ uint8_t tty_getcolor(tty *t);
 size_t tty_getmaxx(tty *t);
 size_t tty_getmaxy(tty *t);
 
+void tty_cursor_pos(int row, int col);
+
 #endif // KERNEL_TTY_H_
