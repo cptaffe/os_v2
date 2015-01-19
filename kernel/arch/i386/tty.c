@@ -31,16 +31,21 @@ void tty_putentryat(tty *t, char c, uint8_t color, size_t x, size_t y) {
 }
 
 void tty_putchar(tty *t, char c) {
-	if (c == '\n') {
-		t->col = 0;
-		t->row++;
-	} else {
+
+	if (c != '\n') {
 		tty_putentryat(t, c, t->color, t->col, t->row);
-		if (++t->col == VGA_WIDTH) {
-			t->col = 0;
-			if (++t->row == VGA_HEIGHT) {
-				t->row = 0;
+	}
+
+	if (++t->col == VGA_WIDTH || c == '\n') {
+		t->col = 0;
+		if (++t->row == VGA_HEIGHT) {
+			// shift all rows up one
+			for (int j = 0; j < VGA_HEIGHT; j++) {
+				for (int i = 0; i < VGA_WIDTH; i++) {
+					t->buf[(j * VGA_WIDTH) + i] = t->buf[((j + 1) * VGA_WIDTH) + i];
+				}
 			}
+			t->row = VGA_HEIGHT - 1; // stick at bottom row
 		}
 	}
 }

@@ -12,5 +12,9 @@ void kernel_early() {
 
 void kernel_main() {
 	// use stdio's printf (uses tty).
-	printf("Hello, kernel World!\n");
+	char str[] = "Hello, kernel World! x\n";
+	for (int i = 0; i < 26; i++) {
+		str[sizeof(str) - 3] = 'A' + i;
+		printf(str);
+	}
 }
