@@ -40,11 +40,7 @@ void tty_putchar(tty *t, char c) {
 		t->col = 0;
 		if (++t->row == VGA_HEIGHT) {
 			// shift all rows up one
-			for (int j = 0; j < VGA_HEIGHT; j++) {
-				for (int i = 0; i < VGA_WIDTH; i++) {
-					t->buf[(j * VGA_WIDTH) + i] = t->buf[((j + 1) * VGA_WIDTH) + i];
-				}
-			}
+			memcpy(t->buf, &t->buf[VGA_WIDTH], (VGA_HEIGHT - 1) * VGA_WIDTH);
 			t->row = VGA_HEIGHT - 1; // stick at bottom row
 		}
 	}
