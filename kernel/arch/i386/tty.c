@@ -10,6 +10,14 @@
 // globally avaliable tty.
 tty tty_out;
 
+// constructor runs on boot
+__attribute__((constructor))
+void init_glbl_tty() {
+	tty_init(&tty_out);
+}
+
+// __attribute__((destructor)) runs on halt
+
 // utility functions
 
 // cursor location

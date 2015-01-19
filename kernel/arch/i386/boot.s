@@ -23,20 +23,26 @@ stack_top:
 .global _start
 .type _start, @function
 _start:
+	# init stack
 	movl $stack_top, %esp
 
-	# Initialize the core kernel before running the global constructors.
+	# init core kernel
 	call kernel_early
 
-	# Call the global constructors.
+	# call global constructors in the .init section
 	call _init
 
-	# Transfer control to the main kernel.
+	# main kernel.
 	call kernel_main
 
+	# call global destructors in the .fini section
+	call _fini
+
+.hang:
 	# Hang if kernel_main unexpectedly returns.
 	cli
 	hlt
 .Lhang:
 	jmp .Lhang
+
 .size _start, . - _start

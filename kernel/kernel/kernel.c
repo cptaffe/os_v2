@@ -13,8 +13,7 @@ void kprint(char *str) {
 }
 
 void kernel_early() {
-	// init the global out tty.
-	tty_init(&tty_out);
+	// early kernel stuffs, runs before global constructors
 }
 
 void kernel_main() {
