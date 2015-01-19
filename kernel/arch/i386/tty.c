@@ -6,18 +6,17 @@
 #include <kernel/vga.h>
 #include <kernel/tty.h>
 
-tty tty_out; // implement extern
+// globally avaliable tty.
+tty tty_out;
 
 void tty_init(tty *t) {
-	t->row = 0;
 	t->col = 0;
+	t->row = 0;
 	t->color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
-	t->buf = VGA_MEMORY;
-	for (size_t y = 0; y < VGA_HEIGHT; y++) {
-		for (size_t x = 0; x < VGA_WIDTH; x++) {
-			const size_t i = y * VGA_WIDTH + x;
-			t->buf[i] = make_vga_entry(' ', t->color);
-		}
+	t->buf = (uint16_t *) VGA_MEMORY;
+	int16_t fill = make_vga_entry(' ', t->color);
+	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+		t->buf[i] = fill;
 	}
 }
 
@@ -25,23 +24,47 @@ void tty_setcolor(tty *t, uint8_t color) {
 	t->color = color;
 }
 
+uint8_t tty_getcolor(tty *t) {
+	return t->color;
+}
+
 void tty_putentryat(tty *t, char c, uint8_t color, size_t x, size_t y) {
-	const size_t i = y * VGA_WIDTH + x;
-	t->buf[i] = make_vga_entry(c, color);
+	t->buf[(y * VGA_WIDTH) + x] = make_vga_entry(c, color);
 }
 
 void tty_putchar(tty *t, char c) {
 
-	if (c != '\n') {
-		tty_putentryat(t, c, t->color, t->col, t->row);
-	}
+	// special characters
+	if (c == '\r') {
+		t->col = 0; // return
+	} else if (c == '\a') {
+		// bell
+	} else if (c == '\b') {
+		if (t->col > 0) {
+			t->col--;
+		} else {
+			// not enough info
+		}
+		tty_putentryat(t, ' ', t->color, t->col, t->row);
+	} else if (c == '\t') {
+		// tabular (8 characters)
+		int ntab = (8 - (t->col % 8));
+		for (int i = 0; i < ntab; i++) {
+			tty_putchar(t, ' '); // proper space handling
+		}
+	} else {
+		if (c != '\n') {
+			tty_putentryat(t, c, t->color, t->col, t->row);
+		}
 
-	if (++t->col == VGA_WIDTH || c == '\n') {
-		t->col = 0;
-		if (++t->row == VGA_HEIGHT) {
-			// shift all rows up one
-			memcpy(t->buf, &t->buf[VGA_WIDTH], (VGA_HEIGHT - 1) * VGA_WIDTH);
-			t->row = VGA_HEIGHT - 1; // stick at bottom row
+		// looping check
+		if (++t->col == VGA_WIDTH || c == '\n') {
+			t->col = 0;
+			if (++t->row == VGA_HEIGHT) {
+				// shift all rows up one
+				memcpy(t->buf, &t->buf[VGA_WIDTH], (((VGA_HEIGHT - 1) * 2) * (VGA_WIDTH * 2)));
+				t->row = VGA_HEIGHT - 1; // stick at bottom row
+			}
 		}
 	}
 }
@@ -54,4 +77,20 @@ void tty_write(tty *t, const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++) {
 		tty_putchar(t, data[i]);
 	}
+}
+
+void tty_put(tty *t, uint8_t col, char c) {
+	tty_putentryat(t, c, col, t->col, t->row);
+}
+
+void tty_pos_put(tty *t, size_t x, size_t y, uint8_t col, char c) {
+	tty_putentryat(t, c, col, y, x);
+}
+
+size_t tty_getmaxx(tty *t) {
+	return VGA_WIDTH;
+}
+
+size_t tty_getmaxy(tty *t) {
+	return VGA_HEIGHT;
 }
