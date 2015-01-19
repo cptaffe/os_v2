@@ -10,6 +10,20 @@
 // globally avaliable tty.
 tty tty_out;
 
+// utility functions
+
+// cursor location
+static void tty_cursor_pos(int row, int col) {
+	unsigned short position=(row*80) + col;
+
+	// cursor LOW port to vga INDEX register
+	outb(0x3D4, 0x0F);
+	outb(0x3D5, (unsigned char)(position&0xFF));
+	// cursor HIGH port to vga INDEX register
+	outb(0x3D4, 0x0E);
+	outb(0x3D5, (unsigned char )((position>>8)&0xFF));
+}
+
 void tty_init(tty *t) {
 	t->col = 0;
 	t->row = 0;
@@ -81,32 +95,4 @@ void tty_write(tty *t, const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++) {
 		tty_putchar(t, data[i]);
 	}
-}
-
-void tty_put(tty *t, uint8_t col, char c) {
-	tty_putentryat(t, c, col, t->col, t->row);
-}
-
-void tty_pos_put(tty *t, size_t x, size_t y, uint8_t col, char c) {
-	tty_putentryat(t, c, col, y, x);
-}
-
-size_t tty_getmaxx(tty *t) {
-	return VGA_WIDTH;
-}
-
-size_t tty_getmaxy(tty *t) {
-	return VGA_HEIGHT;
-}
-
-// cursor location
-void tty_cursor_pos(int row, int col) {
-	unsigned short position=(row*80) + col;
-
-	// cursor LOW port to vga INDEX register
-	outb(0x3D4, 0x0F);
-	outb(0x3D5, (unsigned char)(position&0xFF));
-	// cursor HIGH port to vga INDEX register
-	outb(0x3D4, 0x0E);
-	outb(0x3D5, (unsigned char )((position>>8)&0xFF));
 }
