@@ -109,7 +109,7 @@ void tty_attach(tty *t, int16_t *mem, size_t width, size_t height) {
 
 	t->width = width;
 	t->height = height;
-	t->vga_buf = mem;
+	t->vga_buf = (int16_t *) mem;
 
 	// buffer current buffer to vga buffer
 	for (size_t i = 0; i < (t->height * t->width); i++ ) {

@@ -22,7 +22,7 @@ file *file_open(file *file, enum file_type type, void *out) {
 	if (file->type == FILE_TTY) {
 		tty_init((tty *) file->out);
 		// vga standards
-		tty_attach((tty *) file->out, VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
+		tty_attach((tty *) file->out, (int16_t *) VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
 	}
 
 	return file;

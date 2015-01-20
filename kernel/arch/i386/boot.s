@@ -42,11 +42,6 @@ _start:
 	# call global destructors in the .fini section
 	call _fini
 
-	# final options of kernel, called with kern0
-	mov kern0, %eax
-	pushl %eax
-	call kernel_late
-
 .hang:
 	# Hang if kernel_main unexpectedly returns.
 	cli

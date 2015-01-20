@@ -12,8 +12,8 @@
 // TODO: fprintf
 
 enum kernel_state {
-	EXIT_SUCCESS,
-	EXIT_FAILURE
+	EXIT_FAILURE,
+	EXIT_SUCCESS
 };
 
 typedef struct {
@@ -24,12 +24,20 @@ static kernel main_kern = {
 	.state = EXIT_SUCCESS
 };
 
+// global kernel function
 kernel *kern0;
 
-// early setup befor _init
-void kernel_early(kernel *kern) {
-	// cannot print yet, setup has not occured.
+// kernel init run in _init
+__attribute__((constructor))
+void kernel_init() {
 	kern0 = &main_kern;
+}
+
+// kernel entry points
+
+// early setup befor _init
+void kernel_early() {
+	// no print or kernel structure.
 }
 
 // called after kernel_early & _init
@@ -54,18 +62,24 @@ void kernel_main(kernel *kern) {
 	printf("This is printed on a new tty.\n");
 
 	tty_detach(&new_tty);
-	tty_attach(old_tty, 0xb8000, 80, 25);
+	tty_attach(old_tty, (int16_t *) 0xb8000, 80, 25);
 	stdout = old_stdout;
 
 	printf("This tty is now again active.\n");
+
+	// handle late cleanup
+	kernel_late(kern);
 }
 
-// late cleanup after _fini
 void kernel_late(kernel *kern) {
+
+	tty_setcolor((tty *) stdout->out, 15 | 1 << 4);
 
 	if (kern->state == EXIT_SUCCESS) {
 		printf("kernel has exited properly.\n");
 	} else if (kern->state == EXIT_FAILURE) {
 		printf("kernel has panicked.\n");
+	} else {
+		printf("kernel data corrupted.\n");
 	}
 }
