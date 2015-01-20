@@ -25,7 +25,13 @@ void tty_init(tty *t) {
 	t->col = 0;
 	t->row = 0;
 	t->color = make_color(COLOR_LIGHT_GREY, COLOR_BLACK);
-	t->buf = (uint16_t *) VGA_MEMORY;
+
+	t->vga_buf = (uint16_t *) VGA_MEMORY;
+
+	// set inactive by default
+	t->opts = TTY_INACTIVE;
+	t->buf = (uint16_t *) t->bufmem;
+
 	int16_t fill = make_vga_entry(' ', t->color);
 	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
 		t->buf[i] = fill;
@@ -93,4 +99,28 @@ size_t tty_write(tty *t, const char *data, size_t size) {
 		tty_putchar(t, data[i]);
 	}
 	return size; // all was written
+}
+
+void tty_activate(tty *t) {
+	t->opts |= TTY_ACTIVE;
+
+	// buffer current buffer to vga buffer
+	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+		t->vga_buf[i] = t->buf[i];
+	}
+
+	// switch buf ptr
+	t->buf = t->vga_buf;
+}
+
+void tty_deactivate(tty *t) {
+	t->opts |= TTY_INACTIVE;
+
+	// buffer current buffer to vga buffer
+	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+		t->buf[i] = t->vga_buf[i];
+	}
+
+	// switch buf ptr
+	t->buf = (uint16_t *) t->bufmem;
 }

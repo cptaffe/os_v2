@@ -18,8 +18,9 @@ file *file_open(file *file, enum file_type type, void *out) {
 	file->out = out;
 
 	// init action for file type
-	if (type == FILE_TTY) {
-		tty_init((tty *) out);
+	if (file->type == FILE_TTY) {
+		tty_init((tty *) file->out);
+		tty_activate((tty *) file->out);
 	}
 
 	return file;

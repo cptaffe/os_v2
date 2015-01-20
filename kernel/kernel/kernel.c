@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <kernel/file.h>
+#include <kernel/tty.h>
 
 // TODO: fprintf
 
@@ -18,4 +19,19 @@ void kernel_early() {
 void kernel_main() {
 	// use stdio's printf (uses tty).
 	printf("Hello from this OS's kernel!\n");
+	printf("LOLOLOLOLOLOLOLOLOLOLOLOLOL\n");
+
+	// switch ttys
+	// old tty is set as inactive
+	tty *old_tty = (tty *) stdout->out;
+	tty_deactivate(old_tty);
+
+	printf("THIS IS AN INACTIVE TTY, BITCHES!\n");
+
+	// file *old_stdout = stdout;
+	tty new_tty;
+	file new_file;
+	stdout = file_open(&new_file, FILE_TTY, &new_tty);
+
+	printf("THIS IS A NEW TTY, BITCHES!\n");
 }
