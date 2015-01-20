@@ -26,13 +26,17 @@ _start:
 	# init stack
 	movl $stack_top, %esp
 
-	# init core kernel
+	# init core kernel, called with kern0
+	mov kern0, %eax
+	pushl %eax
 	call kernel_early
 
 	# call global constructors in the .init section
 	call _init
 
-	# main kernel.
+	# main kernel, called with kern0
+	mov kern0, %eax
+	pushl %eax
 	call kernel_main
 
 	# call global destructors in the .fini section

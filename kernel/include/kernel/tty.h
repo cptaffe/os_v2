@@ -15,6 +15,8 @@ enum tty_options {
 
 // stucture of a tty
 typedef struct {
+	size_t width;
+	size_t height;
 	size_t row;
 	size_t col;
 	uint8_t color;
@@ -40,7 +42,7 @@ void tty_setcolor(tty *t, uint8_t color);
 uint8_t tty_getcolor(tty *t);
 
 // activate & deactivate
-void tty_activate(tty *t);
-void tty_deactivate(tty *t);
+void tty_acttach(tty *t, int16_t *mem, size_t width, size_t height);
+void tty_detach(tty *t);
 
 #endif // KERNEL_TTY_H_

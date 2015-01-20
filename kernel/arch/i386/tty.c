@@ -28,12 +28,15 @@ void tty_init(tty *t) {
 
 	t->vga_buf = (uint16_t *) VGA_MEMORY;
 
+	t->height = VGA_HEIGHT;
+	t->width = VGA_WIDTH;
+
 	// set inactive by default
 	t->opts = TTY_INACTIVE;
 	t->buf = (uint16_t *) t->bufmem;
 
 	int16_t fill = make_vga_entry(' ', t->color);
-	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+	for (size_t i = 0; i < (t->height * t->width); i++ ) {
 		t->buf[i] = fill;
 	}
 }
@@ -47,7 +50,7 @@ uint8_t tty_getcolor(tty *t) {
 }
 
 void tty_putentryat(tty *t, char c, uint8_t color, size_t x, size_t y) {
-	t->buf[(y * VGA_WIDTH) + x] = make_vga_entry(c, color);
+	t->buf[(y * t->width) + x] = make_vga_entry(c, color);
 }
 
 void tty_putchar(tty *t, char c) {
@@ -76,12 +79,12 @@ void tty_putchar(tty *t, char c) {
 		}
 
 		// looping check
-		if (++t->col == VGA_WIDTH || c == '\n') {
+		if (++t->col == t->width || c == '\n') {
 			t->col = 0;
-			if (++t->row == VGA_HEIGHT) {
+			if (++t->row == t->height) {
 				// shift all rows up one
-				memcpy(t->buf, &t->buf[VGA_WIDTH], (((VGA_HEIGHT - 1) * 2) * (VGA_WIDTH * 2)));
-				t->row = VGA_HEIGHT - 1; // stick at bottom row
+				memcpy(t->buf, &t->buf[VGA_WIDTH], (((t->height - 1) * 2) * (t->width * 2)));
+				t->row = t->height - 1; // stick at bottom row
 			}
 		}
 
@@ -101,11 +104,15 @@ size_t tty_write(tty *t, const char *data, size_t size) {
 	return size; // all was written
 }
 
-void tty_activate(tty *t) {
+void tty_attach(tty *t, int16_t *mem, size_t width, size_t height) {
 	t->opts |= TTY_ACTIVE;
 
+	t->width = width;
+	t->height = height;
+	t->vga_buf = mem;
+
 	// buffer current buffer to vga buffer
-	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+	for (size_t i = 0; i < (t->height * t->width); i++ ) {
 		t->vga_buf[i] = t->buf[i];
 	}
 
@@ -113,14 +120,14 @@ void tty_activate(tty *t) {
 	t->buf = t->vga_buf;
 }
 
-void tty_deactivate(tty *t) {
+void tty_detach(tty *t) {
 	t->opts |= TTY_INACTIVE;
 
 	// switch buf ptr
 	t->buf = (uint16_t *) t->bufmem;
 
 	// buffer current buffer to vga buffer
-	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
+	for (size_t i = 0; i < (t->height * t->width); i++ ) {
 		t->buf[i] = t->vga_buf[i];
 	}
 }

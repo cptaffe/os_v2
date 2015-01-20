@@ -1,6 +1,7 @@
 
 #include <kernel/file.h>
 #include <kernel/tty.h>
+#include <kernel/vga.h>
 
 static tty tty_out; // default output via tty
 static file file_out; // default file out
@@ -20,7 +21,8 @@ file *file_open(file *file, enum file_type type, void *out) {
 	// init action for file type
 	if (file->type == FILE_TTY) {
 		tty_init((tty *) file->out);
-		tty_activate((tty *) file->out);
+		// vga standards
+		tty_attach((tty *) file->out, VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
 	}
 
 	return file;
