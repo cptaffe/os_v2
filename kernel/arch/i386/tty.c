@@ -116,11 +116,11 @@ void tty_activate(tty *t) {
 void tty_deactivate(tty *t) {
 	t->opts |= TTY_INACTIVE;
 
+	// switch buf ptr
+	t->buf = (uint16_t *) t->bufmem;
+
 	// buffer current buffer to vga buffer
 	for (size_t i = 0; i < (VGA_HEIGHT * VGA_WIDTH); i++ ) {
 		t->buf[i] = t->vga_buf[i];
 	}
-
-	// switch buf ptr
-	t->buf = (uint16_t *) t->bufmem;
 }

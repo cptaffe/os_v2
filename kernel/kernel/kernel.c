@@ -26,12 +26,19 @@ void kernel_main() {
 	tty *old_tty = (tty *) stdout->out;
 	tty_deactivate(old_tty);
 
-	printf("THIS IS AN INACTIVE TTY, BITCHES!\n");
+	printf("This tty is now inactive!\n");
 
-	// file *old_stdout = stdout;
+
+	file *old_stdout = stdout;
 	tty new_tty;
 	file new_file;
 	stdout = file_open(&new_file, FILE_TTY, &new_tty);
 
 	printf("THIS IS A NEW TTY, BITCHES!\n");
+
+	tty_deactivate(&new_tty);
+	tty_activate(old_tty);
+	stdout = old_stdout;
+
+	printf("just testing....\n");
 }
