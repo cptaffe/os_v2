@@ -7,17 +7,6 @@
 #include <kernel/vga.h>
 #include <kernel/tty.h>
 
-// globally avaliable tty.
-tty tty_out;
-
-// constructor runs on boot
-__attribute__((constructor))
-void init_glbl_tty() {
-	tty_init(&tty_out);
-}
-
-// __attribute__((destructor)) runs on halt
-
 // utility functions
 
 // cursor location
@@ -99,8 +88,9 @@ void tty_putstr(tty *t, const char *data) {
 	tty_write(t, data, strlen(data));
 }
 
-void tty_write(tty *t, const char *data, size_t size) {
+size_t tty_write(tty *t, const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++) {
 		tty_putchar(t, data[i]);
 	}
+	return size; // all was written
 }

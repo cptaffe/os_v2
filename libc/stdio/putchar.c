@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #if defined(__is_myos_kernel)
-#include <kernel/tty.h>
+#include <kernel/file.h>
 #endif
 
 // character buffer, empties on newline.
@@ -13,7 +13,7 @@ int putchar(int ic) {
 #if defined(__is_myos_kernel)
 	buf[buffered++] = (char) ic;
 	if (ic == '\n' || buffered == 1024) {
-		tty_write(&tty_out, buf, buffered);
+		file_write(stdout, buf, buffered);
 		buffered = 0;
 	}
 #else

@@ -15,12 +15,10 @@ typedef struct {
 	uint16_t *buf;
 } tty;
 
-extern tty tty_out;
-
 void tty_init(tty *t);
 void tty_putchar(tty *t, char c);
 void tty_putstr(tty *t, const char *data);
-void tty_write(tty *t, const char *data, size_t size);
+size_t tty_write(tty *t, const char *data, size_t size);
 
 // color setting
 void tty_setcolor(tty *t, uint8_t color);

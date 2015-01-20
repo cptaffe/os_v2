@@ -3,14 +3,13 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <kernel/tty.h>
+#include <kernel/file.h>
 
-void kprint(char *str) {
-	uint8_t old_col = tty_getcolor(&tty_out);
-	tty_setcolor(&tty_out, 15 | 1 << 4);
-	printf(str);
-	tty_setcolor(&tty_out, old_col);
-}
+// TODO: fprintf
+
+typedef struct {
+	file *out;
+} kernel;
 
 void kernel_early() {
 	// early kernel stuffs, runs before global constructors
@@ -18,5 +17,5 @@ void kernel_early() {
 
 void kernel_main() {
 	// use stdio's printf (uses tty).
-	kprint("Hello from this OS's kernel!\n");
+	printf("Hello from this OS's kernel!\n");
 }
