@@ -9,6 +9,23 @@ static void print(const char* data, size_t data_length) {
 	}
 }
 
+static void print_num(int i, int base) {
+	int nums[100], x = 0;
+	while (i) {
+		int j = i % base; i /= base;
+		nums[x++] = j;
+	}
+	x--; // get to indexes w/ values.
+	while (x + 1) {
+		int j = nums[x--];
+		if (j < 10) {
+			putchar('0' + j);
+		} else if (j < ('z' - 'a')) {
+			putchar('a' + (j - 9));
+		}
+	}
+}
+
 int printf(const char* restrict format, ...) {
 	va_list parameters;
 	va_start(parameters, format);
@@ -51,6 +68,15 @@ int printf(const char* restrict format, ...) {
 			format++;
 			const char* s = va_arg(parameters, const char*);
 			print(s, strlen(s));
+		} else if ( *format == 'd' ) {
+			format++;
+			int i = va_arg(parameters, int);
+			print_num(i, 10);
+		} else if ( *format == 'h' ) {
+			format++;
+			int i = va_arg(parameters, int);
+			print("0x", 2);
+			print_num(i, 16);
 		} else {
 			goto incomprehensible_conversion;
 		}

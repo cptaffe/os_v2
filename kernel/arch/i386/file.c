@@ -1,4 +1,6 @@
 
+// Copyright (c) 2015 Connor Taffe <cpaynetaffe@gmail.com>
+
 #include <kernel/file.h>
 #include <kernel/tty.h>
 #include <kernel/vga.h>

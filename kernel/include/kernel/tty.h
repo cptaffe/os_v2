@@ -33,8 +33,8 @@ typedef struct {
 } tty;
 
 void tty_init(tty *t);
-void tty_putchar(tty *t, char c);
-void tty_putstr(tty *t, const char *data);
+void tty_putc(tty *t, char c);
+void tty_puts(tty *t, const char *data);
 size_t tty_write(tty *t, const char *data, size_t size);
 
 // color setting

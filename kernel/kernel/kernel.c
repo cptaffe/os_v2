@@ -6,25 +6,15 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <kernel/kernel.h>
 #include <kernel/file.h>
 #include <kernel/tty.h>
+#include <kernel/halt.h>
+#include <kernel/int.h>
+#include <sys/io.h>
 
-// TODO: fprintf
+static kernel main_kern = { .state = EXIT_SUCCESS };
 
-enum kernel_state {
-	EXIT_FAILURE,
-	EXIT_SUCCESS
-};
-
-typedef struct {
-	enum kernel_state state;
-} kernel;
-
-static kernel main_kern = {
-	.state = EXIT_SUCCESS
-};
-
-// global kernel function
 kernel *kern0;
 
 // kernel init run in _init
@@ -33,53 +23,47 @@ void kernel_init() {
 	kern0 = &main_kern;
 }
 
-// kernel entry points
+// kernel messages are white w/ blue background.
+static void kputs(char *msg) {
+	// somewhat low level tty usage.
+	tty *t = (tty *) stdout->out;
+	uint8_t col = tty_getcolor(t);
+	tty_setcolor(t, 15 | 1 << 4);
+	tty_puts(t, msg); tty_putc(t, '\n');
+	tty_setcolor(t, col);
+}
 
 // early setup befor _init
-void kernel_early() {
-	// no print or kernel structure.
-}
+void kernel_early() { }
 
 // called after kernel_early & _init
 void kernel_main(kernel *kern) {
 
+	// set up interrupt descriptor table
+	kern0->idt = idt_init();
+
 	// use stdio's printf (uses tty).
 	printf("Hello from this OS's kernel!\n");
 
-	// switch ttys
-	// old tty is set as inactive
-	tty *old_tty = (tty *) stdout->out;
-	tty_detach(old_tty);
+	kputs("testing interrupts...");
 
-	printf("This tty is now inactive.\n");
-
-
-	file *old_stdout = stdout;
-	tty new_tty;
-	file new_file;
-	stdout = file_open(&new_file, FILE_TTY, &new_tty);
-
-	printf("This is printed on a new tty.\n");
-
-	tty_detach(&new_tty);
-	tty_attach(old_tty, (int16_t *) 0xb8000, 80, 25);
-	stdout = old_stdout;
-
-	printf("This tty is now again active.\n");
+	asm("int $32");
 
 	// handle late cleanup
-	kernel_late(kern);
+	kernel_exit(kern);
 }
 
-void kernel_late(kernel *kern) {
+void kernel_exit(kernel *kern) {
 
-	tty_setcolor((tty *) stdout->out, 15 | 1 << 4);
-
+	// set tty color & print proper message.
 	if (kern->state == EXIT_SUCCESS) {
-		printf("kernel has exited properly.\n");
+		kputs("kernel has exited properly.");
 	} else if (kern->state == EXIT_FAILURE) {
-		printf("kernel has panicked.\n");
+		kputs("kernel has panicked.");
 	} else {
-		printf("kernel data corrupted.\n");
+		kputs("kernel data corrupted.");
 	}
+
+	// hang execution of the kernel.
+	hang();
 }

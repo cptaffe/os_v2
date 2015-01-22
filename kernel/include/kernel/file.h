@@ -24,4 +24,4 @@ file *file_open(file *file, enum file_type type, void *out);
 size_t file_write(file *f, void *mem, size_t size);
 size_t file_read(file *f, void *mem, size_t size);
 
-#endif // KERNEL_TTY_H_
+#endif // KERNEL_FILE_H_

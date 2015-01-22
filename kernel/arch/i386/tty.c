@@ -1,3 +1,6 @@
+
+// Copyright (c) 2015 Connor Taffe <cpaynetaffe@gmail.com>
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -39,6 +42,8 @@ void tty_init(tty *t) {
 	for (size_t i = 0; i < (t->height * t->width); i++ ) {
 		t->buf[i] = fill;
 	}
+
+	tty_cursor_pos(0,0);
 }
 
 void tty_setcolor(tty *t, uint8_t color) {
@@ -53,7 +58,7 @@ void tty_putentryat(tty *t, char c, uint8_t color, size_t x, size_t y) {
 	t->buf[(y * t->width) + x] = make_vga_entry(c, color);
 }
 
-void tty_putchar(tty *t, char c) {
+void tty_putc(tty *t, char c) {
 
 	// special characters
 	if (c == '\r') {
@@ -71,7 +76,7 @@ void tty_putchar(tty *t, char c) {
 		// tabular (8 characters)
 		int ntab = (8 - (t->col % 8));
 		for (int i = 0; i < ntab; i++) {
-			tty_putchar(t, ' '); // proper space handling
+			tty_putc(t, ' '); // proper space handling
 		}
 	} else {
 		if (c != '\n') {
@@ -93,13 +98,13 @@ void tty_putchar(tty *t, char c) {
 	}
 }
 
-void tty_putstr(tty *t, const char *data) {
+void tty_puts(tty *t, const char *data) {
 	tty_write(t, data, strlen(data));
 }
 
 size_t tty_write(tty *t, const char *data, size_t size) {
 	for (size_t i = 0; i < size; i++) {
-		tty_putchar(t, data[i]);
+		tty_putc(t, data[i]);
 	}
 	return size; // all was written
 }
@@ -109,7 +114,7 @@ void tty_attach(tty *t, int16_t *mem, size_t width, size_t height) {
 
 	t->width = width;
 	t->height = height;
-	t->vga_buf = (int16_t *) mem;
+	t->vga_buf = (uint16_t *) mem;
 
 	// buffer current buffer to vga buffer
 	for (size_t i = 0; i < (t->height * t->width); i++ ) {

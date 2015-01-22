@@ -23,6 +23,13 @@ stack_top:
 .global _start
 .type _start, @function
 _start:
+
+	# set up protected mode lgtr
+	#cli
+	#lgdt (gdtr)
+
+	call bootstrap_64
+
 	# init stack
 	movl $stack_top, %esp
 
@@ -32,6 +39,7 @@ _start:
 	call kernel_early
 
 	# call global constructors in the .init section
+	# _fini for .fini is also avaliable.
 	call _init
 
 	# main kernel, called with kern0
@@ -39,14 +47,34 @@ _start:
 	pushl %eax
 	call kernel_main
 
-	# call global destructors in the .fini section
-	call _fini
-
-.hang:
-	# Hang if kernel_main unexpectedly returns.
-	cli
-	hlt
-.Lhang:
-	jmp .Lhang
-
 .size _start, . - _start
+
+# setup global descriptor table
+# sets permissions on segments & useful for kernel.
+gdtr:
+.word (gdt_end - gdt) + 1
+.long gdt
+
+gdt:
+# null entry
+.quad 0
+# code entry
+.word 0xffff
+.word 0x0000
+.byte 0x00
+.byte 0b10011010
+.byte 0x4f
+.byte 0x00
+# data entry
+.word 0xffff
+.word 0x0000
+.byte 0x00
+.byte 0b10010010
+.byte 0x4f
+.byte 0x00
+
+gdt_end:
+
+.fill 510-(.-gdt_end), 1, 0
+.byte 0x55
+.byte 0xaa
