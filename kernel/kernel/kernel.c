@@ -47,7 +47,7 @@ void kernel_main(kernel *kern) {
 
 	kputs("testing interrupts...");
 
-	asm("int $32");
+	asm("int $31");
 
 	// handle late cleanup
 	kernel_exit(kern);

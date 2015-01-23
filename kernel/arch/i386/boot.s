@@ -25,8 +25,8 @@ stack_top:
 _start:
 
 	# set up protected mode lgtr
-	#cli
-	#lgdt (gdtr)
+	cli
+	lgdt (gdtr)
 
 	call bootstrap_64
 
