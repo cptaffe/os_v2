@@ -7,8 +7,8 @@
 .global hang
 .type hang, @function
 hang:
-	# Hang if kernel_main unexpectedly returns.
-	cli
+	# hang (by halting core)
+	# note: interrupts are not off.
 	hlt
 	.hang:
 	jmp .hang

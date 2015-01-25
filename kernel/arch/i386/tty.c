@@ -92,10 +92,9 @@ void tty_putc(tty *t, char c) {
 				t->row = t->height - 1; // stick at bottom row
 			}
 		}
-
-		// position cursor at current col & row
-		tty_cursor_pos(t->row, t->col);
 	}
+	// position cursor at current col & row
+	tty_cursor_pos(t->row, t->col);
 }
 
 void tty_puts(tty *t, const char *data) {
@@ -109,7 +108,7 @@ size_t tty_write(tty *t, const char *data, size_t size) {
 	return size; // all was written
 }
 
-void tty_attach(tty *t, int16_t *mem, size_t width, size_t height) {
+void tty_attach(tty *t, uint16_t *mem, size_t width, size_t height) {
 	t->opts |= TTY_ACTIVE;
 
 	t->width = width;

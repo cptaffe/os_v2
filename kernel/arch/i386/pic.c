@@ -2,7 +2,6 @@
 // Copyright (c) 2015 Connor Taffe <cpaynetaffe@gmail.com>
 
 #include <stdint.h>
-#include <stdio.h> // testing
 
 #include <kernel/pic.h>
 #include <sys/io.h>
@@ -34,8 +33,6 @@ void pic_eoi(uint8_t irq) {
 void pic_init(uint8_t off1, uint8_t off2) {
 	// save masks
 	uint8_t mmsk = inb(mpd), smsk = inb(spd);
-
-	printf("masks are %h and %h\n", (int) mmsk, (int) smsk);
 
 	// start init
 	outb_wait(mp, 0x11);

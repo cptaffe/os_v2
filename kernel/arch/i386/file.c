@@ -14,6 +14,8 @@ __attribute__((constructor))
 void init_glbl_file() {
 	stdout = &file_out;
 	file_open(stdout, FILE_TTY, &tty_out);
+	tty_detach(&tty_out);
+	tty_attach(&tty_out, VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
 }
 
 file *file_open(file *file, enum file_type type, void *out) {
@@ -24,7 +26,7 @@ file *file_open(file *file, enum file_type type, void *out) {
 	if (file->type == FILE_TTY) {
 		tty_init((tty *) file->out);
 		// vga standards
-		tty_attach((tty *) file->out, (int16_t *) VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
+		tty_attach((tty *) file->out, VGA_MEMORY, VGA_WIDTH, VGA_HEIGHT);
 	}
 
 	return file;

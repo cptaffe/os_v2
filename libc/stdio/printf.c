@@ -11,6 +11,10 @@ static void print(const char* data, size_t data_length) {
 
 static void print_num(int i, int base) {
 	int nums[100], x = 0;
+	if (i == 0) {
+		putchar('0');
+		return;
+	}
 	while (i) {
 		int j = i % base; i /= base;
 		nums[x++] = j;
